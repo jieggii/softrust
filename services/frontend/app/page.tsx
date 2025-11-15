@@ -107,7 +107,7 @@ export default function Home() {
                         {error && <p className="text-sm text-red-400">{error}</p>}
                         {!error && loading && !report && (
                             <p className="text-sm text-indigo-300">
-                                {reportId ? `Generating report ${reportId}...` : 'Starting report...'}
+                                {reportId ? `Generating report...` : 'Starting report...'}
                             </p>
                         )}
                         {!error && !loading && !report && (
