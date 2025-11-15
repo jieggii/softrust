@@ -7,7 +7,9 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
+export type { Issue } from './models/Issue';
 export type { ProductMeta } from './models/ProductMeta';
+export type { ProductSecurityAssessment } from './models/ProductSecurityAssessment';
 export type { ReportContent } from './models/ReportContent';
 export { ReportGetResponse } from './models/ReportGetResponse';
 export type { ReportStartResponse } from './models/ReportStartResponse';

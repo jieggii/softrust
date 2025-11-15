@@ -115,7 +115,7 @@ export default function Home() {
                         )}
                         {!error && report && (
                             <div className="text-gray-100 space-y-4">
-                                <h2 className="text-3xl font-extrabold text-white">
+                                <h2 className="text-4xl font-extrabold text-white">
                                     Security report: {report.content?.meta.name}
                                 </h2>
 
@@ -136,14 +136,14 @@ export default function Home() {
                                     </p>
                                 </div>
 
-                                <div className="mt-4">
-                                    <h3 className="text-2xl font-bold text-white mb-2">Basic information</h3>
+                                <div className="mt-6">
+                                    <h3 className="text-2xl font-bold text-white mb-2">Basic Information</h3>
                                     <blockquote className="border-l-4 border-indigo-500 bg-gray-900/50 pl-4 py-2 italic text-gray-200 rounded-md">
                                         {report.content?.meta.short_description}
                                     </blockquote>
                                 </div>
 
-                                <div className="space-y-1 text-gray-300 mt-4">
+                                <div className="space-y-1 text-gray-300 mt-6">
                                     <p>
                                         <span className="font-semibold text-gray-200">Vendor:</span>{" "}
                                         {report.content?.meta.vendor}
@@ -156,6 +156,48 @@ export default function Home() {
                                         <span className="font-semibold text-gray-200">Alternatives:</span>{" "}
                                         {report.content?.meta.alternatives.join(", ")}
                                     </p>
+                                </div>
+
+                                <div className="mt-6">
+                                    <h3 className="text-2xl font-bold text-white mb-2">Key Issues</h3>
+                                    {report.content?.security_assessment.key_issues.map((issue, index) => (
+                                        <div key={index} className="mb-3">
+                                            <h4 className="font-semibold text-indigo-400">
+                                                {issue.title}
+                                            </h4>
+                                            <p className="text-gray-300 ">{issue.description}</p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="mt-6">
+                                    <h3 className="text-2xl font-bold text-white mb-2">
+                                        The Verdict
+                                    </h3>
+                                    <div className="flex items-center gap-4">
+                                        {(() => {
+                                            const scoreStr = report.content?.security_assessment.security_score ?? '0'
+                                            const score = Number.isNaN(Number(scoreStr)) ? 0 : parseInt(String(scoreStr), 10)
+                                            const colorClass =
+                                                score >= 71 ? 'bg-emerald-500 text-white' :
+                                                    score >= 51 ? 'bg-amber-400 text-black' :
+                                                        'bg-red-600 text-white'
+                                            return (
+                                                <>
+                                                    <div
+                                                        className={`w-20 h-20 rounded-full flex items-center justify-center text-lg font-extrabold ${colorClass}`}
+                                                        aria-hidden="true"
+                                                    >
+                                                        {score}
+                                                    </div>
+                                                    <div className="text-gray-300">
+                                                        <p className="mb-1 font-bold">{report.content?.security_assessment.verdict}</p>
+                                                        <p className="text-sm text-gray-400">Security score (0–100)</p>
+                                                    </div>
+                                                </>
+                                            )
+                                        })()}
+                                    </div>
                                 </div>
                             </div>
                         )}
