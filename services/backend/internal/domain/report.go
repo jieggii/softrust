@@ -64,24 +64,23 @@ type ProductMeta struct {
 	Alternatives []string
 }
 
-type ReportContent struct {
-	// ProductMeta information about the product.
-	ProductMeta ProductMeta
-
-	// Checks that were run on report.
-	Checks []Check
-
-	// Verdict that summarizes all analyzes.
-	Verdict string
-
-	// Score from 0 to 100 that is based on the verdict.
-	Score int
+type Issue struct {
+	Title       string
+	Description string
 }
 
-// Check represents a single check that has been run on a product.
-type Check interface {
-	// Name returns analyze name.
-	Name() string
+type ProductSecurityAssessment struct {
+	Summary                    string
+	KeyIssues                  []Issue
+	Verdict                    string
+	SecurityScore              string
+	SecurityScoreJustification string
+}
 
-	Verdict() string
+type ReportContent struct {
+	// Information about the product.
+	ProductMeta ProductMeta
+
+	// Assessment of the product's security.
+	SecurityAssessment ProductSecurityAssessment
 }

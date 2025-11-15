@@ -75,18 +75,78 @@ func (m *ProductMeta) Domain() domain.ProductMeta {
 	}
 }
 
+type Issue struct {
+	Title       string `bson:"title"`
+	Description string `bson:"description"`
+}
+
+func NewIssue(i domain.Issue) Issue {
+	return Issue{
+		Title:       i.Title,
+		Description: i.Description,
+	}
+}
+
+func (i *Issue) Domain() domain.Issue {
+	return domain.Issue{
+		Title:       i.Title,
+		Description: i.Description,
+	}
+}
+
+type ProductSecurityAssessment struct {
+	Summary                    string  `bson:"summary"`
+	KeyIssues                  []Issue `bson:"key_issues"`
+	Verdict                    string  `bson:"verdict"`
+	SecurityScore              string  `bson:"security_score"`
+	SecurityScoreJustification string  `bson:"security_score_justification"`
+}
+
+func NewProductSecurityAssessment(p domain.ProductSecurityAssessment) ProductSecurityAssessment {
+	keyIssues := make([]Issue, len(p.KeyIssues))
+	for i, issue := range p.KeyIssues {
+		keyIssues[i] = NewIssue(issue)
+	}
+
+	return ProductSecurityAssessment{
+		Summary:                    p.Summary,
+		KeyIssues:                  keyIssues,
+		Verdict:                    p.Verdict,
+		SecurityScore:              p.SecurityScore,
+		SecurityScoreJustification: p.SecurityScoreJustification,
+	}
+}
+
+func (p *ProductSecurityAssessment) Domain() domain.ProductSecurityAssessment {
+	keyIssues := make([]domain.Issue, len(p.KeyIssues))
+	for i, issue := range p.KeyIssues {
+		keyIssues[i] = issue.Domain()
+	}
+
+	return domain.ProductSecurityAssessment{
+		Summary:                    p.Summary,
+		KeyIssues:                  keyIssues,
+		Verdict:                    p.Verdict,
+		SecurityScore:              p.SecurityScore,
+		SecurityScoreJustification: p.SecurityScoreJustification,
+	}
+}
+
 type ReportContent struct {
-	ProductMeta ProductMeta `bson:"product_meta"`
+	ProductMeta        ProductMeta               `bson:"product_meta"`
+	SecurityAssessment ProductSecurityAssessment `bson:"security_assessment"`
 }
 
 func NewReportContent(c domain.ReportContent) ReportContent {
 	return ReportContent{
-		ProductMeta: NewProductMeta(c.ProductMeta),
+		ProductMeta:        NewProductMeta(c.ProductMeta),
+		SecurityAssessment: NewProductSecurityAssessment(c.SecurityAssessment),
 	}
 }
 
 func (r *ReportContent) Domain() *domain.ReportContent {
 	return &domain.ReportContent{
-		ProductMeta: r.ProductMeta.Domain(),
+		ProductMeta:        r.ProductMeta.Domain(),
+		SecurityAssessment: r.SecurityAssessment.Domain(),
 	}
 }

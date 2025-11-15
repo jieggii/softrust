@@ -10,8 +10,10 @@ import (
 )
 
 type ReportContentGenerator struct {
-	MetaResolver *ProductMetaResolver
-	Log          *log.Logger
+	MetaResolver     *ProductMetaResolver
+	SecurityAssessor *ProductSecurityAssessor
+
+	Log *log.Logger
 }
 
 func (r *ReportContentGenerator) GenerateReportContent(ctx context.Context, reportID uuid.UUID, query string) (domain.ReportContent, error) {
@@ -21,5 +23,13 @@ func (r *ReportContentGenerator) GenerateReportContent(ctx context.Context, repo
 		return domain.ReportContent{}, fmt.Errorf("resolve name: %w", err)
 	}
 
-	return domain.ReportContent{ProductMeta: meta}, nil
+	assessment, err := r.SecurityAssessor.AssessSecurity(ctx, meta.Name, meta.Vendor, meta.Classification)
+	if err != nil {
+		return domain.ReportContent{}, fmt.Errorf("assess security: %w", err)
+	}
+
+	return domain.ReportContent{
+		ProductMeta:        meta,
+		SecurityAssessment: assessment,
+	}, nil
 }

@@ -105,15 +105,21 @@ func main() {
 		logger.Fatalf("failed to create GenAI client: %v", err)
 	}
 
-	// create name resolver service:
+	// create product meta resolver service:
 	productMetaResolver := &usecases.ProductMetaResolver{
+		Client: genAIClient,
+	}
+
+	// create product security assessor service:
+	productSecurityAssessor := &usecases.ProductSecurityAssessor{
 		Client: genAIClient,
 	}
 
 	// create report generator service:
 	reportGeneratorSvc := &usecases.ReportContentGenerator{
-		MetaResolver: productMetaResolver,
-		Log:          logger,
+		MetaResolver:     productMetaResolver,
+		SecurityAssessor: productSecurityAssessor,
+		Log:              logger,
 	}
 
 	// create the main service:

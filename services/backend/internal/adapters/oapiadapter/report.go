@@ -22,7 +22,8 @@ func GetReportByID200Response(r *domain.Report) oapi.GetReportByID200JSONRespons
 
 func reportContent(c *domain.ReportContent) *oapi.ReportContent {
 	return &oapi.ReportContent{
-		Meta: productMeta(c.ProductMeta),
+		Meta:               productMeta(c.ProductMeta),
+		SecurityAssessment: productSecurityAssessment(c.SecurityAssessment),
 	}
 }
 
@@ -33,6 +34,28 @@ func productMeta(m domain.ProductMeta) oapi.ProductMeta {
 		Classification:   m.Classification,
 		ShortDescription: m.ShortDesc,
 		Alternatives:     m.Alternatives,
+	}
+}
+
+func productSecurityAssessment(a domain.ProductSecurityAssessment) oapi.ProductSecurityAssessment {
+	issues := make([]oapi.Issue, len(a.KeyIssues))
+	for i, v := range a.KeyIssues {
+		issues[i] = issue(v)
+	}
+
+	return oapi.ProductSecurityAssessment{
+		KeyIssues:                  issues,
+		SecurityScore:              a.SecurityScore,
+		SecurityScoreJustification: a.SecurityScoreJustification,
+		Summary:                    a.Summary,
+		Verdict:                    a.Verdict,
+	}
+}
+
+func issue(i domain.Issue) oapi.Issue {
+	return oapi.Issue{
+		Title:       i.Title,
+		Description: i.Description,
 	}
 }
 

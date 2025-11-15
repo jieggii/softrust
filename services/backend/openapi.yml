@@ -119,14 +119,46 @@ components:
           items:
             type: string
       required: [ name, vendor, classification, short_description, alternatives ]
+    
+    Issue:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+      required: [title, description]
+
+    ProductSecurityAssessment:
+      type: object
+      additionalProperties: false
+      properties:
+        summary:
+          type: string
+        key_issues:
+          type: array
+          items:
+            allOf:
+              - $ref: "#/components/schemas/Issue"
+        verdict:
+          type: string
+        security_score:
+          type: string
+        security_score_justification:
+          type: string
+      required: [ summary, key_issues, verdict, security_score, security_score_justification ]
 
     ReportContent:
       type: object
+      additionalProperties: false
       properties:
         meta:
           allOf:
             - $ref: "#/components/schemas/ProductMeta"
-      required: [meta]
+        security_assessment:
+          allOf:
+            - $ref: "#/components/schemas/ProductSecurityAssessment"
+      required: [meta, security_assessment]
 
     ReportGetResponse:
       type: object
@@ -144,7 +176,4 @@ components:
         content:
           allOf:
             - $ref: "#/components/schemas/ReportContent"
-
-
       required: [id, query, status, created_at]
-
