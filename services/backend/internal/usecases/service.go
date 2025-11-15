@@ -2,36 +2,56 @@ package usecases
 
 import (
 	"context"
+	"errors"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jieggii/softrust/services/backend/internal/adapters/mongoadapter"
 	"github.com/jieggii/softrust/services/backend/internal/domain"
 )
 
+const reportCacheTTL = 7 * 24 * time.Hour
+
 type Service struct {
 	repo *mongoadapter.Repo
 
 	reportGenerator *ReportContentGenerator
 
-	log *log.Logger
+	reportCacheTTL time.Duration
+	log            *log.Logger
 }
 
 func NewService(repo *mongoadapter.Repo, reportGenerator *ReportContentGenerator, log *log.Logger) *Service {
 	return &Service{
 		repo:            repo,
 		reportGenerator: reportGenerator,
+		reportCacheTTL:  reportCacheTTL,
 		log:             log,
 	}
 }
 
 // GenerateReport starts generating product report and returns report ID.
 func (s *Service) GenerateReport(ctx context.Context, query string) (uuid.UUID, error) {
+	// normalize query for consistency:
+	normalizedQuery := domain.NormalizeQuery(query)
+
+	// get existing report by query (in case it was generated recently):
+	report, err := s.repo.GetReportByQuery(ctx, normalizedQuery)
+	if err == nil {
+		if time.Now().UTC().Sub(report.CreatedAt) <= s.reportCacheTTL {
+			// return existing report ID if it's still fresh:
+			return report.ID, nil
+		}
+	} else if !errors.Is(err, domain.ErrReportNotFound) {
+		return uuid.Nil, err
+	}
+
+	// generate new report, because no fresh report exists:
 	reportID := uuid.New()
-	queryHash := domain.NormalizeQuery(query)
 
 	// create report in the repository:
-	if err := s.repo.CreateReport(ctx, reportID, queryHash); err != nil {
+	if err := s.repo.CreateReport(ctx, reportID, normalizedQuery); err != nil {
 		return uuid.Nil, err
 	}
 

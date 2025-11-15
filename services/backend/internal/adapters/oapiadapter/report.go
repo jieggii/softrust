@@ -6,12 +6,17 @@ import (
 )
 
 func GetReportByID200Response(r *domain.Report) oapi.GetReportByID200JSONResponse {
+	var content *oapi.ReportContent
+	if r.Content != nil {
+		content = reportContent(r.Content)
+	}
+
 	return oapi.GetReportByID200JSONResponse{
 		Id:        r.ID.String(),
 		Query:     r.Query,
 		CreatedAt: r.CreatedAt.UTC(),
 		Status:    reportStatus(r.Status),
-		Content:   reportContent(r.Content),
+		Content:   content,
 	}
 }
 

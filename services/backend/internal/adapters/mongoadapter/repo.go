@@ -15,6 +15,7 @@ const (
 	reportIDField = "report_id"
 	contentField  = "content"
 	statusField   = "status"
+	queryField    = "query"
 )
 
 const reportsCollection = "reports"
@@ -70,6 +71,20 @@ func (r *Repo) UpdateReportStatus(ctx context.Context, id uuid.UUID, status doma
 	}
 
 	return nil
+}
+
+func (r *Repo) GetReportByQuery(ctx context.Context, query string) (*domain.Report, error) {
+	var doc ReportDocument
+	filter := bson.M{queryField: query}
+
+	if err := r.DB.Collection(reportsCollection).FindOne(ctx, filter).Decode(&doc); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, domain.ErrReportNotFound
+		}
+		return nil, err
+	}
+
+	return doc.Domain()
 }
 
 func (r *Repo) UpdateReportContent(ctx context.Context, id uuid.UUID, content domain.ReportContent) error {

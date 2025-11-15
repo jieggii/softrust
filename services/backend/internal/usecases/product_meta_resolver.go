@@ -50,6 +50,16 @@ func (r *ProductMetaResolver) ResolveMeta(ctx context.Context, query string) (do
 		ShortDesc:      meta.ShortDesc,
 		Alternatives:   meta.Alternatives,
 	}, nil
+
+	//time.Sleep(1 * time.Second)
+	//
+	//return domain.ProductMeta{
+	//	Name:           "stub name",
+	//	Vendor:         "staub vendor",
+	//	Classification: "stub classification",
+	//	ShortDesc:      "stub short description",
+	//	Alternatives:   []string{"alt1", "alt2", "alt3"},
+	//}, nil
 }
 
 func parseProductMeta(response string) (*ProductMeta, error) {
