@@ -98,7 +98,7 @@ export default function Home() {
                         disabled={loading}
                         className="ml-0 inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-60"
                     >
-                        {loading ? 'Working...' : 'Generate report'}
+                        {loading ? 'Working...' : 'Get report'}
                     </button>
                 </div>
 
