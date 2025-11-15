@@ -9,6 +9,7 @@ import (
 	"github.com/jieggii/softrust/services/backend/internal/domain"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 const (
@@ -77,7 +78,9 @@ func (r *Repo) GetReportByQuery(ctx context.Context, query string) (*domain.Repo
 	var doc ReportDocument
 	filter := bson.M{queryField: query}
 
-	if err := r.DB.Collection(reportsCollection).FindOne(ctx, filter).Decode(&doc); err != nil {
+	opts := options.FindOne().SetSort(bson.D{{Key: "created_at", Value: -1}}) // newest first
+
+	if err := r.DB.Collection(reportsCollection).FindOne(ctx, filter, opts).Decode(&doc); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, domain.ErrReportNotFound
 		}
