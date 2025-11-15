@@ -11,7 +11,7 @@ import (
 	"github.com/jieggii/softrust/services/backend/internal/domain"
 )
 
-const reportCacheTTL = 7 * 24 * time.Hour
+const reportCacheTTL = 1 * time.Hour
 
 type Service struct {
 	repo *mongoadapter.Repo
