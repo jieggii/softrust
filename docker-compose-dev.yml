@@ -2,36 +2,26 @@ services:
   backend:
     build:
       context: ./services/backend
-    restart: unless-stopped
     env_file:
       - backend.env
+    ports:
+      - "8080:8080"
     depends_on:
       - mongo
 
   frontend:
     build:
       context: ./services/frontend
-    restart: unless-stopped
     environment:
       NEXT_PUBLIC_API_BASE: http://backend:8080
-    depends_on:
-      - backend
-
-  caddy:
-    image: caddy:2.10
-    restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./.data/caddy:/data
-      - ./config/Caddyfile:/etc/caddy/Caddyfile
+      - "3000:3000"
     depends_on:
-      - frontend
       - backend
 
   mongo:
     image: mongo:8.2
-    restart: unless-stopped
+    ports:
+      - "27017:27017"
     volumes:
       - ./.data/mongo:/data/db

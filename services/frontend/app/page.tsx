@@ -5,7 +5,7 @@ import { DefaultService } from './client/services/DefaultService'
 import { ReportGetResponse } from './client/models/ReportGetResponse'
 import { OpenAPI } from './client/core/OpenAPI'
 
-OpenAPI.BASE = 'http://localhost:8080'
+OpenAPI.BASE = OpenAPI.BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8080'
 
 export default function Home() {
     const [query, setQuery] = useState('')
