@@ -14,8 +14,6 @@ services:
       args:
         NEXT_PUBLIC_API_BASE: https://api.softthat.fit
     restart: unless-stopped
-#    environment:
-#      NEXT_PUBLIC_API_BASE: https://api.softthat.fit
     depends_on:
       - backend
 
