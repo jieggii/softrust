@@ -2,6 +2,10 @@
 - The web app: [softthat.fit](https://softthat.fit)
 - API documentation (Swagger): [api.softthat.fit/swagger](https://api.softthat.fit/swagger)
 
+![Imgur](https://imgur.com/lBtK8Mz.jpg)
+
+![Imgur](https://imgur.com/9SuIsXl.jpg)
+
 ## Running
 
 ### Development
