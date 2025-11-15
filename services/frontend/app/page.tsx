@@ -46,7 +46,7 @@ export default function Home() {
                 setLoading(false)
                 clearPoll()
             }
-        }, 1000)
+        }, 2000)
     }
 
     const generateReport = async () => {
