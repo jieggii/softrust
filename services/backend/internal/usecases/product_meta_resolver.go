@@ -38,7 +38,6 @@ func (r *ProductMetaResolver) ResolveMeta(ctx context.Context, query string) (do
 		return domain.ProductMeta{}, fmt.Errorf("%w: %v", ErrProductMetaResolutionFailed, err)
 	}
 
-	fmt.Printf("AI response: %s\n", resp.Text())
 	meta, err := parseProductMeta(resp.Text())
 	if err != nil {
 		return domain.ProductMeta{}, fmt.Errorf("parse AI response: %w", err)
