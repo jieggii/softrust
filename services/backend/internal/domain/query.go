@@ -1,6 +1,9 @@
 package domain
 
-func QueryHash(query string) string {
-	// TODO: implement
+import "strings"
+
+func NormalizeQuery(query string) string {
+	query = strings.ToLower(query)
+	query = strings.Trim(query, " \t")
 	return query
 }

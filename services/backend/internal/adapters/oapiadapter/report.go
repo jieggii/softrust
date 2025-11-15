@@ -11,6 +11,23 @@ func GetReportByID200Response(r *domain.Report) oapi.GetReportByID200JSONRespons
 		Query:     r.Query,
 		CreatedAt: r.CreatedAt.UTC(),
 		Status:    reportStatus(r.Status),
+		Content:   reportContent(r.Content),
+	}
+}
+
+func reportContent(c *domain.ReportContent) *oapi.ReportContent {
+	return &oapi.ReportContent{
+		Meta: productMeta(c.ProductMeta),
+	}
+}
+
+func productMeta(m domain.ProductMeta) oapi.ProductMeta {
+	return oapi.ProductMeta{
+		Name:             m.Name,
+		Vendor:           m.Vendor,
+		Classification:   m.Classification,
+		ShortDescription: m.ShortDesc,
+		Alternatives:     m.Alternatives,
 	}
 }
 

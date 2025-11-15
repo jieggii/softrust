@@ -1,14 +1,35 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"errors"
+	"time"
+
+	"github.com/google/uuid"
+)
+
+var ErrReportNotFound = errors.New("report not found")
 
 type ReportStatus string
 
 const (
+	ReportStatusUnknown ReportStatus = "unknown"
 	ReportStatusPending ReportStatus = "pending"
 	ReportStatusReady   ReportStatus = "ready"
 	ReportStatusFailed  ReportStatus = "failed"
 )
+
+func ParseReportStatus(status string) ReportStatus {
+	switch status {
+	case "pending":
+		return ReportStatusPending
+	case "ready":
+		return ReportStatusReady
+	case "failed":
+		return ReportStatusFailed
+	default:
+		return ReportStatusUnknown
+	}
+}
 
 type Report struct {
 	// Unique identifier of the report.
@@ -20,16 +41,32 @@ type Report struct {
 	// Current status of the report.
 	Status ReportStatus
 
+	CreatedAt time.Time
+
 	// Report content is available only when Status is ReportStatusReady.
 	Content *ReportContent
 }
 
-type ReportContent struct {
-	// Product title.
-	Title string
+type ProductMeta struct {
+	// Product name.
+	Name string
 
 	// Product vendor.
 	Vendor string
+
+	// Classification of the product, e.g. "antivirus", "vpn", etc.
+	Classification string
+
+	// A short description of the product.
+	ShortDesc string
+
+	// List of alternative products.
+	Alternatives []string
+}
+
+type ReportContent struct {
+	// ProductMeta information about the product.
+	ProductMeta ProductMeta
 
 	// Checks that were run on report.
 	Checks []Check

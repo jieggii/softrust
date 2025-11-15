@@ -58,6 +58,39 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ReportGetResponse"
+        "400":
+          description: Invalid report ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              example:
+                error: "Invalid report ID"
+        "404":
+          description: Report not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              example:
+                error: "Report not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              example:
+                error: "Failed to retrieve report"
 
 components:
   schemas:
@@ -68,18 +101,49 @@ components:
           type: string
       required: [id]
 
+    ProductMeta:
+      additionalProperties: false
+      nullable: true
+      properties:
+        name:
+          type: string
+        vendor:
+          type: string
+        classification:
+          type: string
+        short_description:
+          type: string
+        alternatives:
+          type: array
+          items:
+            type: string
+      required: [ name, vendor, classification, short_description, alternatives ]
+
+    ReportContent:
+      type: object
+      properties:
+        meta:
+          allOf:
+            - $ref: "#/components/schemas/ProductMeta"
+      required: [meta]
+
     ReportGetResponse:
       type: object
       properties:
         id:
           type: string
+        query:
+          type: string
         status:
           type: string
-          enum: [pending, processing, ready, failed]
+          enum: [unknown, pending, ready, failed]
         created_at:
           type: string
           format: date-time
-        data:
-          type: object
-          nullable: true
-      required: [id, status, created_at]
+        content:
+          allOf:
+            - $ref: "#/components/schemas/ReportContent"
+
+
+      required: [id, query, status, created_at]
+

@@ -14,7 +14,7 @@ COPY main.go ./
 # build service binary:
 RUN CGO_ENABLED=0 go build -o service main.go
 
-FROM scratch AS runner
+FROM alpine:3.22 AS runner
 
 WORKDIR /usr/local/bin
 COPY --from=builder /build/service ./

@@ -4,12 +4,19 @@
 package oapi
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
+	"path"
+	"strings"
 	"time"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
 	"github.com/oapi-codegen/runtime"
 	strictnethttp "github.com/oapi-codegen/runtime/strictmiddleware/nethttp"
@@ -17,17 +24,32 @@ import (
 
 // Defines values for ReportGetResponseStatus.
 const (
-	Failed     ReportGetResponseStatus = "failed"
-	Pending    ReportGetResponseStatus = "pending"
-	Processing ReportGetResponseStatus = "processing"
-	Ready      ReportGetResponseStatus = "ready"
+	Failed  ReportGetResponseStatus = "failed"
+	Pending ReportGetResponseStatus = "pending"
+	Ready   ReportGetResponseStatus = "ready"
+	Unknown ReportGetResponseStatus = "unknown"
 )
+
+// ProductMeta defines model for ProductMeta.
+type ProductMeta struct {
+	Alternatives     []string `json:"alternatives"`
+	Classification   string   `json:"classification"`
+	Name             string   `json:"name"`
+	ShortDescription string   `json:"short_description"`
+	Vendor           string   `json:"vendor"`
+}
+
+// ReportContent defines model for ReportContent.
+type ReportContent struct {
+	Meta ProductMeta `json:"meta"`
+}
 
 // ReportGetResponse defines model for ReportGetResponse.
 type ReportGetResponse struct {
+	Content   *ReportContent          `json:"content,omitempty"`
 	CreatedAt time.Time               `json:"created_at"`
-	Data      *map[string]interface{} `json:"data"`
 	Id        string                  `json:"id"`
+	Query     string                  `json:"query"`
 	Status    ReportGetResponseStatus `json:"status"`
 }
 
@@ -290,6 +312,39 @@ func (response GetReportByID200JSONResponse) VisitGetReportByIDResponse(w http.R
 	return json.NewEncoder(w).Encode(response)
 }
 
+type GetReportByID400JSONResponse struct {
+	Error *string `json:"error,omitempty"`
+}
+
+func (response GetReportByID400JSONResponse) VisitGetReportByIDResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(400)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetReportByID404JSONResponse struct {
+	Error *string `json:"error,omitempty"`
+}
+
+func (response GetReportByID404JSONResponse) VisitGetReportByIDResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(404)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetReportByID500JSONResponse struct {
+	Error *string `json:"error,omitempty"`
+}
+
+func (response GetReportByID500JSONResponse) VisitGetReportByIDResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(500)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// Start report generation
@@ -384,4 +439,94 @@ func (sh *strictHandler) GetReportByID(w http.ResponseWriter, r *http.Request, i
 	} else if response != nil {
 		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
 	}
+}
+
+// Base64 encoded, gzipped, json marshaled Swagger object
+var swaggerSpec = []string{
+
+	"H4sIAAAAAAAC/8RVwW7bOBD9FWF2j1rbu+u96LZJsIEPi6bpMTACRhzFTCWSGY7cCob+vSBpOVZEN2nQ",
+	"oCdL1HDmzXtvxjsoTWONRs0Oih24coONCI9XZGRb8v/Iwr8KKRUro0V9RcYisUIHRSVqhznotq7FXY1Q",
+	"MLWYgz0K2YGoGUkLVtv4rhib8MCdRSjAMSl9D30+HAgi0fn3shbOqUqVwpdOXtGiweQHtzHEtxJdScqe",
+	"vL5FLQ0lPvU5ED62ilBCcRPLHMInyFLl8nHj6z6Ha7SG+NxoRs2+6JioZuC6rj9UUNzs4HfCCgr4bf4k",
+	"03yv0fxYoH79HHDItT5Qau4esGQ4YLhEvkZnjXY4xVE+AXwdlHFfvW+1JBSM8laENJWhxj+BFIx/sApk",
+	"TsRQMqnRY4vUpTVmwW2AjLptfNut/qzNF0++RS19mKdFyA5yqISqUR6RckJrJWEoeigxaug0rZ9Y0HeI",
+	"TTY4rT7N74OUrky4rrgO903F1DoOtiQXHA6L2Z+zhcdjLGphFRTw92wxW3pCBG8CijkFrAGeceF3NCYQ",
+	"unCZcJ0usxic3aNGCmbPhJYZIbekXcYbHCKUnEGoG8NWEgo4D6RFbiD2iY7PjOye+8zaej9M8wcXhzW6",
+	"a8riwQ9j1B/9cWYFiQYZKasMTcHDS+LH5GkFnuL8mgsHUekA66/F4oeaenmgxm4KEMYtx7AsWDMoU5Zo",
+	"GaU3wD+vgoNfRWPrYFUk8psQ/gtjkrHJnK+f4NBP3glt9klSJk8QOu5mpcO6rDOHtEXKYi4f59qmEV7z",
+	"aM0UpD4ffD3fKdl7CPeY8Pb11LgRUXbXJS0cNqWPO+tWF2GM9gZzYS0qn9SPFgz/RXF/jL1yTNhzZtbv",
+	"7qPjZZ/g/d8xEV7e5VvNs9JbUSs5ZFxdvJ9ZEoWWi+XbYO8HSRvOKtNq+V6oU3V+wqASMincDo7+lQN6",
+	"iYe5RHnA0/f9twAAAP//z0Sqx2sKAAA=",
+}
+
+// GetSwagger returns the content of the embedded swagger specification file
+// or error if failed to decode
+func decodeSpec() ([]byte, error) {
+	zipped, err := base64.StdEncoding.DecodeString(strings.Join(swaggerSpec, ""))
+	if err != nil {
+		return nil, fmt.Errorf("error base64 decoding spec: %w", err)
+	}
+	zr, err := gzip.NewReader(bytes.NewReader(zipped))
+	if err != nil {
+		return nil, fmt.Errorf("error decompressing spec: %w", err)
+	}
+	var buf bytes.Buffer
+	_, err = buf.ReadFrom(zr)
+	if err != nil {
+		return nil, fmt.Errorf("error decompressing spec: %w", err)
+	}
+
+	return buf.Bytes(), nil
+}
+
+var rawSpec = decodeSpecCached()
+
+// a naive cached of a decoded swagger spec
+func decodeSpecCached() func() ([]byte, error) {
+	data, err := decodeSpec()
+	return func() ([]byte, error) {
+		return data, err
+	}
+}
+
+// Constructs a synthetic filesystem for resolving external references when loading openapi specifications.
+func PathToRawSpec(pathToFile string) map[string]func() ([]byte, error) {
+	res := make(map[string]func() ([]byte, error))
+	if len(pathToFile) > 0 {
+		res[pathToFile] = rawSpec
+	}
+
+	return res
+}
+
+// GetSwagger returns the Swagger specification corresponding to the generated code
+// in this file. The external references of Swagger specification are resolved.
+// The logic of resolving external references is tightly connected to "import-mapping" feature.
+// Externally referenced files must be embedded in the corresponding golang packages.
+// Urls can be supported but this task was out of the scope.
+func GetSwagger() (swagger *openapi3.T, err error) {
+	resolvePath := PathToRawSpec("")
+
+	loader := openapi3.NewLoader()
+	loader.IsExternalRefsAllowed = true
+	loader.ReadFromURIFunc = func(loader *openapi3.Loader, url *url.URL) ([]byte, error) {
+		pathToFile := url.String()
+		pathToFile = path.Clean(pathToFile)
+		getSpec, ok := resolvePath[pathToFile]
+		if !ok {
+			err1 := fmt.Errorf("path not found: %s", pathToFile)
+			return nil, err1
+		}
+		return getSpec()
+	}
+	var specData []byte
+	specData, err = rawSpec()
+	if err != nil {
+		return
+	}
+	swagger, err = loader.LoadFromData(specData)
+	if err != nil {
+		return
+	}
+	return
 }
