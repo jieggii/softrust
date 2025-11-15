@@ -1,6 +1,4 @@
-# sofTrust
-(Also known as Soft Trust or Soft That Fit)
-
+# First Step
 - The web app: [softthat.fit](https://softthat.fit)
 - API documentation (Swagger): [api.softthat.fit/swagger](https://api.softthat.fit/swagger)
 
