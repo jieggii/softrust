@@ -1,0 +1,85 @@
+openapi: 3.0.4
+info:
+  title: softrust
+  version: 0.1.0
+
+paths:
+  /report:
+    post:
+      summary: Start report generation
+      description: Starts async report generation and returns the report id.
+      operationId: CreateReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+                  description: Query parameter for report generation
+      responses:
+        "200":
+          description: Report creation accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportStartResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              example:
+                error: "Failed to start report generation"
+
+  /report/{id}:
+    get:
+      summary: Get generated report
+      description: Returns the report object by id.
+      operationId: GetReportByID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A report object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportGetResponse"
+
+components:
+  schemas:
+    ReportStartResponse:
+      type: object
+      properties:
+        id:
+          type: string
+      required: [id]
+
+    ReportGetResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, ready, failed]
+        created_at:
+          type: string
+          format: date-time
+        data:
+          type: object
+          nullable: true
+      required: [id, status, created_at]
