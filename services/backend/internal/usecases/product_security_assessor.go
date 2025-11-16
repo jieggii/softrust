@@ -45,6 +45,7 @@ func (a *ProductSecurityAssessor) AssessSecurity(ctx context.Context, productNam
 		return domain.ProductSecurityAssessment{}, fmt.Errorf("%w: %v", ErrProductMetaResolutionFailed, err)
 	}
 
+	fmt.Println(resp.Text())
 	assessment, err := parseProductSecurityAssessment(resp.Text())
 	if err != nil {
 		return domain.ProductSecurityAssessment{}, fmt.Errorf("parse AI response: %w", err)
