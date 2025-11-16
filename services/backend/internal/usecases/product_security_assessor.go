@@ -111,7 +111,7 @@ INSTRUCTIONS:
 		}
 	],
 	"verdict": "[key recommendation (e.g: you can use freely/never use)]",
-	"security_score": "[Score from 0 to 100 (as a string)]",
+	"security_score": "[ONLY ONE INTEGER (no dashes) representing security score from 0 (worst) to 100 (best). e.g: 85]",
 	"security_score_justification": "Brief reason for the assigned score (max 2 sentences).",
 }
 `, productName, productVendor, productClassification, productName)
